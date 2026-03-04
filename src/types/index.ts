@@ -54,3 +54,62 @@ export const PREFECTURES = [
 ] as const;
 
 export type Prefecture = typeof PREFECTURES[number];
+
+// ============================================
+// Luxury Hotel (local JSON from Amadeus fetch)
+// Filter: 一泊8万円以上
+// ============================================
+
+export interface HotelPin {
+  id: string;           // Amadeus hotelId
+  lat: number;
+  lng: number;
+  name: string;
+  pricePerNight: number;  // 円
+  currency: string;
+  address: string;
+  countryCode: string;
+  cityName: string;
+  checkIn?: string;    // 検索に使った日付
+  checkOut?: string;
+}
+
+/** JSON saved by scripts/fetch_luxury_hotels.js */
+export interface LuxuryHotelsJson {
+  generatedAt: string;   // ISO date
+  checkIn: string;       // YYYY-MM-DD
+  checkOut: string;
+  minPricePerNightYen: number;
+  hotels: HotelPin[];
+}
+
+// ============================================
+// Resort Beach (local JSON)
+// 世界のリゾートビーチデータ
+// ============================================
+
+export interface BeachPin {
+  id: string;           // 一意のID
+  lat: number;
+  lng: number;
+  name: string;
+  nameEn?: string;      // 英語名（あれば）
+  countryCode: string;
+  cityName: string;
+  region?: string;      // 地域名（例: カリブ海、地中海など）
+  description?: string; // ビーチの説明
+  features?: string[];  // 特徴（例: ['白砂', 'シュノーケリング', 'サーフィン']）
+  bestSeason?: string;  // ベストシーズン（例: '12月〜3月'）
+  address?: string;
+  activities?: string[]; // アクティビティ（例: ['シュノーケリング', 'ダイビング', 'パラセーリング']）
+  food?: string[];      // 食べ物・レストラン（例: ['シーフード', '地元料理', 'ビーチカフェ']）
+  drinks?: string[];    // 飲み物（例: ['ココナッツウォーター', 'トロピカルカクテル', '地ビール']）
+  uniqueExperience?: string; // ユニークな体験の説明
+  mood?: string[];      // 気分・雰囲気（例: ['リラックス', 'アクティブ', 'ロマンチック']）
+}
+
+/** JSON saved by scripts/fetch_beaches.js or manually created */
+export interface BeachesJson {
+  generatedAt: string;   // ISO date
+  beaches: BeachPin[];
+}

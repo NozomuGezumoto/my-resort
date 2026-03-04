@@ -105,6 +105,51 @@ interface StoreState {
   deleteCustomShop: (id: string) => void;
   getCustomShops: () => CustomShop[];
   isCustomShop: (id: string) => boolean;
+
+  // ============================================
+  // Hotel (行った・行きたい・思い出・写真)
+  // ============================================
+  visitedHotels: string[];
+  wantToGoHotels: string[];
+  hotelRatings: Record<string, number>;
+  hotelMemos: { id: string; note: string; photos?: string[]; updatedAt: string }[];
+  markHotelVisited: (id: string) => void;
+  unmarkHotelVisited: (id: string) => void;
+  isHotelVisited: (id: string) => boolean;
+  markHotelWantToGo: (id: string) => void;
+  unmarkHotelWantToGo: (id: string) => void;
+  isHotelWantToGo: (id: string) => boolean;
+  setHotelMemo: (id: string, note: string) => void;
+  getHotelMemo: (id: string) => { note: string; photos: string[] } | undefined;
+  addHotelPhoto: (id: string, photoUri: string) => void;
+  removeHotelPhoto: (id: string, photoUri: string) => void;
+  getHotelPhotos: (id: string) => string[];
+  setHotelRating: (id: string, rating: number) => void;
+  getHotelRating: (id: string) => number | undefined;
+
+  // ============================================
+  // Beach (行った・行きたい・思い出・写真)
+  // ============================================
+  visitedBeaches: string[];
+  visitedBeachDates: Record<string, string>; // beachId -> ISO date string
+  wantToGoBeaches: string[];
+  beachRatings: Record<string, number>;
+  beachMemos: { id: string; note: string; photos?: string[]; updatedAt: string }[];
+  markBeachVisited: (id: string, visitedDate?: string) => void;
+  unmarkBeachVisited: (id: string) => void;
+  isBeachVisited: (id: string) => boolean;
+  getBeachVisitedDate: (id: string) => string | undefined;
+  markBeachWantToGo: (id: string) => void;
+  unmarkBeachWantToGo: (id: string) => void;
+  isBeachWantToGo: (id: string) => boolean;
+  setBeachMemo: (id: string, note: string) => void;
+  getBeachMemo: (id: string) => { note: string; photos: string[] } | undefined;
+  addBeachPhoto: (id: string, photoUri: string) => void;
+  removeBeachPhoto: (id: string, photoUri: string) => void;
+  getBeachPhotos: (id: string) => string[];
+  setBeachRating: (id: string, rating: number) => void;
+  getBeachRating: (id: string) => number | undefined;
+  getBeachesByYear: (year: number) => string[]; // 年ごとの訪問ビーチIDリスト
 }
 
 export const useStore = create<StoreState>()(
@@ -116,6 +161,15 @@ export const useStore = create<StoreState>()(
       shopMemos: [],
       customShops: [],
       excludedShops: [],
+      visitedHotels: [],
+      wantToGoHotels: [],
+      hotelRatings: {},
+      hotelMemos: [],
+      visitedBeaches: [],
+      visitedBeachDates: {},
+      wantToGoBeaches: [],
+      beachRatings: {},
+      beachMemos: [],
       filterMode: 'all',
       distanceFilter: 'none',
       prefectureFilter: '',
@@ -374,8 +428,182 @@ export const useStore = create<StoreState>()(
       },
       
       getCustomShops: () => get().customShops,
-      
+
       isCustomShop: (id) => id.startsWith('custom-'),
+
+      // ============================================
+      // Hotel Actions
+      // ============================================
+      markHotelVisited: (id) => {
+        set((state) => {
+          if (state.visitedHotels.includes(id)) return state;
+          return { visitedHotels: [...state.visitedHotels, id] };
+        });
+      },
+      unmarkHotelVisited: (id) => {
+        set((state) => ({
+          visitedHotels: state.visitedHotels.filter((h) => h !== id),
+        }));
+      },
+      isHotelVisited: (id) => get().visitedHotels.includes(id),
+      markHotelWantToGo: (id) => {
+        set((state) => {
+          if (state.wantToGoHotels.includes(id)) return state;
+          return { wantToGoHotels: [...state.wantToGoHotels, id] };
+        });
+      },
+      unmarkHotelWantToGo: (id) => {
+        set((state) => ({
+          wantToGoHotels: state.wantToGoHotels.filter((h) => h !== id),
+        }));
+      },
+      isHotelWantToGo: (id) => get().wantToGoHotels.includes(id),
+      setHotelMemo: (id, note) => {
+        set((state) => {
+          const existing = state.hotelMemos.find((m) => m.id === id);
+          if (existing) {
+            return {
+              hotelMemos: state.hotelMemos.map((m) =>
+                m.id === id ? { ...m, note, updatedAt: new Date().toISOString() } : m
+              ),
+            };
+          }
+          return {
+            hotelMemos: [...state.hotelMemos, { id, note, updatedAt: new Date().toISOString() }],
+          };
+        });
+      },
+      getHotelMemo: (id) => {
+        const m = get().hotelMemos.find((m) => m.id === id);
+        return m ? { note: m.note, photos: m.photos || [] } : undefined;
+      },
+      addHotelPhoto: (id, photoUri) => {
+        set((state) => {
+          const existing = state.hotelMemos.find((m) => m.id === id);
+          const photos = existing?.photos || [];
+          if (photos.length >= 4) return state;
+          const next = existing
+            ? { ...existing, photos: [...photos, photoUri], updatedAt: new Date().toISOString() }
+            : { id, note: '', photos: [photoUri], updatedAt: new Date().toISOString() };
+          return {
+            hotelMemos: existing
+              ? state.hotelMemos.map((m) => (m.id === id ? next : m))
+              : [...state.hotelMemos, next],
+          };
+        });
+      },
+      removeHotelPhoto: (id, photoUri) => {
+        set((state) => ({
+          hotelMemos: state.hotelMemos.map((m) =>
+            m.id === id
+              ? { ...m, photos: (m.photos || []).filter((p) => p !== photoUri), updatedAt: new Date().toISOString() }
+              : m
+          ),
+        }));
+      },
+      getHotelPhotos: (id) => get().hotelMemos.find((m) => m.id === id)?.photos || [],
+      setHotelRating: (id, rating) => {
+        set((state) => ({
+          hotelRatings: { ...state.hotelRatings, [id]: Math.min(5, Math.max(1, rating)) },
+        }));
+      },
+      getHotelRating: (id) => get().hotelRatings[id],
+
+      // ============================================
+      // Beach Actions
+      // ============================================
+      markBeachVisited: (id, visitedDate) => {
+        set((state) => {
+          if (state.visitedBeaches.includes(id)) return state;
+          const date = visitedDate || new Date().toISOString();
+          return {
+            visitedBeaches: [...state.visitedBeaches, id],
+            visitedBeachDates: { ...state.visitedBeachDates, [id]: date },
+          };
+        });
+      },
+      unmarkBeachVisited: (id) => {
+        set((state) => {
+          const { [id]: _, ...restDates } = state.visitedBeachDates;
+          return {
+            visitedBeaches: state.visitedBeaches.filter((b) => b !== id),
+            visitedBeachDates: restDates,
+          };
+        });
+      },
+      isBeachVisited: (id) => get().visitedBeaches.includes(id),
+      getBeachVisitedDate: (id) => get().visitedBeachDates[id],
+      getBeachesByYear: (year) => {
+        const dates = get().visitedBeachDates;
+        return get().visitedBeaches.filter((id) => {
+          const dateStr = dates[id];
+          if (!dateStr) return false;
+          const date = new Date(dateStr);
+          return date.getFullYear() === year;
+        });
+      },
+      markBeachWantToGo: (id) => {
+        set((state) => {
+          if (state.wantToGoBeaches.includes(id)) return state;
+          return { wantToGoBeaches: [...state.wantToGoBeaches, id] };
+        });
+      },
+      unmarkBeachWantToGo: (id) => {
+        set((state) => ({
+          wantToGoBeaches: state.wantToGoBeaches.filter((b) => b !== id),
+        }));
+      },
+      isBeachWantToGo: (id) => get().wantToGoBeaches.includes(id),
+      setBeachMemo: (id, note) => {
+        set((state) => {
+          const existing = state.beachMemos.find((m) => m.id === id);
+          if (existing) {
+            return {
+              beachMemos: state.beachMemos.map((m) =>
+                m.id === id ? { ...m, note, updatedAt: new Date().toISOString() } : m
+              ),
+            };
+          }
+          return {
+            beachMemos: [...state.beachMemos, { id, note, updatedAt: new Date().toISOString() }],
+          };
+        });
+      },
+      getBeachMemo: (id) => {
+        const m = get().beachMemos.find((m) => m.id === id);
+        return m ? { note: m.note, photos: m.photos || [] } : undefined;
+      },
+      addBeachPhoto: (id, photoUri) => {
+        set((state) => {
+          const existing = state.beachMemos.find((m) => m.id === id);
+          const photos = existing?.photos || [];
+          if (photos.length >= 4) return state;
+          const next = existing
+            ? { ...existing, photos: [...photos, photoUri], updatedAt: new Date().toISOString() }
+            : { id, note: '', photos: [photoUri], updatedAt: new Date().toISOString() };
+          return {
+            beachMemos: existing
+              ? state.beachMemos.map((m) => (m.id === id ? next : m))
+              : [...state.beachMemos, next],
+          };
+        });
+      },
+      removeBeachPhoto: (id, photoUri) => {
+        set((state) => ({
+          beachMemos: state.beachMemos.map((m) =>
+            m.id === id
+              ? { ...m, photos: (m.photos || []).filter((p) => p !== photoUri), updatedAt: new Date().toISOString() }
+              : m
+          ),
+        }));
+      },
+      getBeachPhotos: (id) => get().beachMemos.find((m) => m.id === id)?.photos || [],
+      setBeachRating: (id, rating) => {
+        set((state) => ({
+          beachRatings: { ...state.beachRatings, [id]: Math.min(5, Math.max(1, rating)) },
+        }));
+      },
+      getBeachRating: (id) => get().beachRatings[id],
     }),
     {
       name: 'my-sushi-storage',
@@ -386,6 +614,15 @@ export const useStore = create<StoreState>()(
         shopMemos: state.shopMemos,
         customShops: state.customShops,
         excludedShops: state.excludedShops,
+        visitedHotels: state.visitedHotels,
+        wantToGoHotels: state.wantToGoHotels,
+        hotelRatings: state.hotelRatings,
+        hotelMemos: state.hotelMemos,
+        visitedBeaches: state.visitedBeaches,
+        visitedBeachDates: state.visitedBeachDates,
+        wantToGoBeaches: state.wantToGoBeaches,
+        beachRatings: state.beachRatings,
+        beachMemos: state.beachMemos,
       }),
     }
   )
