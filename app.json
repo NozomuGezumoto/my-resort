@@ -11,18 +11,20 @@
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f97316"
+      "backgroundColor": "#0d9488"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mysushi.app"
+      "bundleIdentifier": "com.mysushi.app",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#f97316"
+        "backgroundColor": "#0d9488"
       },
       "package": "com.mysushi.app",
+      "versionCode": 1,
       "config": {
         "googleMaps": {
           "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
@@ -36,7 +38,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow access to add photos to your resort memories."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -22,83 +22,104 @@ import { SUSHI_COLORS, SPACING, RADIUS } from '../constants/theme';
 import type { BeachPin } from '../types';
 import { useStore } from '../store/useStore';
 import { useI18n } from '../i18n/I18nContext';
+import {
+  getBeachDisplayName,
+  getBeachDisplayDescription,
+  getBeachDisplayFeatures,
+  getBeachDisplayBestSeason,
+} from '../data/beachData';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PHOTO_WIDTH = SCREEN_WIDTH - SPACING.xl * 2;
 const MAIN_PHOTO_HEIGHT = 160;
 const SUB_PHOTO_SIZE = (PHOTO_WIDTH - SPACING.sm * 2) / 3;
 
-// 国ごとの代表的な食べ物・飲み物（データになければこれを使う）
+// Default food & drinks by country (used when beach data has none)
 const DEFAULT_FOOD_BY_COUNTRY: Record<string, string[]> = {
-  US: ['ポキ', 'ロコモコ', 'ガーリックシュリンプ'],
-  PR: ['モフォンゴ', 'フリタス（揚げバナナ）'],
-  AW: ['シーフード', 'ケシヤナ（チーズ詰め料理）'],
-  BB: ['フライドフィッシュ', 'クー・クー'],
-  ID: ['ナシゴレン', 'ミーゴレン', 'サテ'],
-  TH: ['トムヤムクン', 'パッタイ', 'グリーンカレー'],
-  SG: ['チキンライス', 'チリクラブ'],
-  JP: ['沖縄そば', 'ラフテー', '海ぶどう'],
-  AU: ['フィッシュ＆チップス', 'オージービーフステーキ'],
-  FR: ['ブイヤベース', 'シーフードプラッター'],
-  GR: ['ギロピタ', 'ギリシャサラダ'],
-  PT: ['バカリャウ（干し鱈料理）', 'シーフードリゾット'],
-  MX: ['タコス', 'セビーチェ'],
-  BR: ['シュラスコ', 'ムケッカ'],
-  ZA: ['シーフードプラッター', 'ボボティ'],
-  AE: ['メゼ', 'グリルケバブ'],
-  VE: ['アレパ', 'シーフード'],
-  MV: ['シーフードグリル', 'マスフニ（ツナとココナッツの料理）'],
-  PF: ['ポワソンクリュ（マリネされた魚）', 'ポリネシアンBBQ'],
-  PH: ['フィリピン料理', 'レチョン'],
-  SC: ['クレオール料理', 'グリルフィッシュ'],
+  US: ['Poke', 'Loco moco', 'Garlic shrimp'],
+  PR: ['Mofongo', 'Frituras (fried plantains)'],
+  AW: ['Seafood', 'Keshi yena'],
+  BB: ['Flying fish', 'Cou-cou'],
+  ID: ['Nasi goreng', 'Mie goreng', 'Satay'],
+  TH: ['Tom yum', 'Pad thai', 'Green curry'],
+  SG: ['Chicken rice', 'Chili crab'],
+  JP: ['Okinawa soba', 'Rafute', 'Sea grapes'],
+  AU: ['Fish & chips', 'Aussie beef steak'],
+  FR: ['Bouillabaisse', 'Seafood platter'],
+  GR: ['Gyro', 'Greek salad'],
+  PT: ['Bacalhau', 'Seafood risotto'],
+  MX: ['Tacos', 'Ceviche'],
+  BR: ['Churrasco', 'Moqueca'],
+  ZA: ['Seafood platter', 'Bobotie'],
+  AE: ['Meze', 'Grilled kebabs'],
+  VE: ['Arepa', 'Seafood'],
+  MV: ['Seafood grill', 'Mas huni'],
+  PF: ['Poisson cru', 'Polynesian BBQ'],
+  PH: ['Filipino cuisine', 'Lechon'],
+  SC: ['Creole cuisine', 'Grilled fish'],
+  DO: ['Mangú', 'Sancocho', 'Chicharrón'],
+  FJ: ['Lovo', 'Kokoda', 'Taro leaves'],
+  TZ: ['Pilau', 'Coconut fish', 'Chapati'],
+  IT: ['Pasta', 'Seafood', 'Limoncello'],
+  ES: ['Paella', 'Tapas', 'Churros'],
 };
 
 const DEFAULT_DRINKS_BY_COUNTRY: Record<string, string[]> = {
-  US: ['マイタイ', 'ピニャコラーダ', 'コナコーヒー'],
-  PR: ['ピニャコラーダ', 'ラムカクテル'],
-  AW: ['ラムパンチ', 'トロピカルカクテル'],
-  BB: ['ラム', 'ラムパンチ'],
-  ID: ['バリコーヒー', 'トロピカルジュース'],
-  TH: ['シンハービール', 'タイアイスティー'],
-  SG: ['シンガポールスリング', 'タイガービール'],
-  JP: ['オリオンビール', '泡盛'],
-  AU: ['オーストラリアワイン', 'クラフトビール'],
-  FR: ['ロゼワイン', 'スパークリングワイン'],
-  GR: ['ウーゾ', 'ギリシャワイン'],
-  PT: ['ポルトワイン', 'ヴィーニョ・ヴェルデ'],
-  MX: ['マルガリータ', 'テキーラ'],
-  BR: ['カイピリーニャ', 'ブラジルビール'],
-  ZA: ['南アフリカワイン', 'クラフトビール'],
-  AE: ['モクテル', 'ミントレモネード'],
-  VE: ['トロピカルジュース', 'ラムカクテル'],
-  MV: ['ココナッツウォーター', 'トロピカルジュース'],
-  PF: ['トロピカルカクテル', 'ココナッツウォーター'],
-  PH: ['サンミゲルビール', 'トロピカルカクテル'],
-  SC: ['セーシェルビール', 'ココナッツウォーター'],
+  US: ['Mai Tai', 'Piña colada', 'Kona coffee'],
+  PR: ['Piña colada', 'Rum cocktails'],
+  AW: ['Rum punch', 'Tropical cocktails'],
+  BB: ['Rum', 'Rum punch'],
+  ID: ['Bali coffee', 'Tropical juice'],
+  TH: ['Singha beer', 'Thai iced tea'],
+  SG: ['Singapore Sling', 'Tiger beer'],
+  JP: ['Orion beer', 'Awamori'],
+  AU: ['Australian wine', 'Craft beer'],
+  FR: ['Rosé wine', 'Sparkling wine'],
+  GR: ['Ouzo', 'Greek wine'],
+  PT: ['Port wine', 'Vinho verde'],
+  MX: ['Margarita', 'Tequila'],
+  BR: ['Caipirinha', 'Brazilian beer'],
+  ZA: ['South African wine', 'Craft beer'],
+  AE: ['Mocktail', 'Mint lemonade'],
+  VE: ['Tropical juice', 'Rum cocktails'],
+  MV: ['Coconut water', 'Tropical juice'],
+  PF: ['Tropical cocktails', 'Coconut water'],
+  PH: ['San Miguel beer', 'Tropical cocktails'],
+  SC: ['Seybrew beer', 'Coconut water'],
+  DO: ['Mamajuana', 'Rum', 'Presidente beer'],
+  FJ: ['Fiji Bitter', 'Kava', 'Coconut water'],
+  TZ: ['Serengeti beer', 'Spiced tea'],
+  IT: ['Aperol Spritz', 'Italian wine'],
+  ES: ['Sangria', 'Cava'],
 };
 
 const DEFAULT_UNIQUE_EXPERIENCE_BY_COUNTRY: Record<string, string> = {
-  US: '虹とサンセットを眺めながら、ビーチ沿いをゆっくり散歩する体験。',
-  PR: 'どこまでも続く白砂のビーチと、カリブ海の濃いブルーのコントラストを味わう時間。',
-  AW: 'ウミガメの産卵地としても知られるビーチで、静かな夕暮れを過ごす体験。',
-  BB: 'ピンクがかった砂浜とターコイズブルーの海を眺めながら、のんびり過ごす一日。',
-  ID: 'ビーチから数分でスパやバリニーズマッサージに行ける、癒やし特化のリゾート体験。',
-  TH: 'ビーチバーでライブ音楽を聞きながら、屋台料理とサンセットを楽しむ体験。',
-  SG: '街からすぐのリゾートアイランドで、シティとビーチを一度に味わえる体験。',
-  JP: 'エメラルドグリーンの海と星空を同時に楽しめる、南国ならではの夜のビーチ時間。',
-  AU: '海沿いの遊歩道をサーファーと一緒に歩きながら、カフェでのんびり過ごす休日。',
-  FR: '地中海の光と歴史ある街並みを背景に、ビーチとカフェ文化を行き来する体験。',
-  GR: '真っ白な家並みとエーゲ海のブルーを一望しながら、崖の上からサンセットを眺める時間。',
-  PT: 'リスボン近郊のビーチで、旧市街観光と海辺ステイをセットで楽しむ体験。',
-  MX: 'マヤ遺跡のすぐそばで、遺跡とカリブ海のビーチを一度に味わえる特別なロケーション。',
-  BR: 'コパカバーナのビーチプロムナードで、音楽とサッカーと海が混ざり合う空気を感じる体験。',
-  ZA: 'テーブルマウンテンをバックに、ドラマチックなサンセットと大西洋の波を眺める時間。',
-  AE: '近未来的な高層ビル群を背にしながら、ビーチサイドでラグジュアリーな時間を過ごす体験。',
-  VE: '人の少ないビーチで、カリブの素朴な雰囲気とゆったりした時間を独り占めできる体験。',
-  MV: '水上ヴィラから直接海へ飛び込んで、そのままシュノーケリングに出かけられる贅沢な時間。',
-  PF: 'ラグーンの上のコテージから、ターコイズブルーの海を一日中眺めて過ごす体験。',
-  PH: '真っ白な砂浜を裸足で歩きながら、ビーチバーとサンセットをはしごする夜。',
-  SC: '巨岩と真っ白な砂浜が並ぶ、世界でも珍しい風景の中で過ごす静かなビーチ時間。',
+  US: 'A relaxed stroll along the beach with rainbows and sunset.',
+  PR: 'Endless white sand against the deep blue Caribbean Sea.',
+  AW: 'Quiet dusk at a beach famous for sea turtle nesting.',
+  BB: 'A lazy day on pink-tinted sand with turquoise waters.',
+  ID: 'Spa and Balinese massage within minutes of the beach.',
+  TH: 'Live music at a beach bar with street food and sunset.',
+  SG: 'Resort island near the city—urban and beach in one trip.',
+  JP: 'Emerald waters and starry skies on a tropical night.',
+  AU: 'Walk the promenade with surfers, then relax at a café.',
+  FR: 'Beach and café culture against Mediterranean light and old towns.',
+  GR: 'White villages and Aegean blue with sunset from the cliffs.',
+  PT: 'Beach near Lisbon combined with old-town sightseeing.',
+  MX: 'Mayan ruins and Caribbean beach in one special location.',
+  BR: 'Music, soccer, and ocean along Copacabana promenade.',
+  ZA: 'Dramatic sunset and Atlantic waves with Table Mountain behind.',
+  AE: 'Luxury beach time with futuristic high-rises in the backdrop.',
+  VE: 'Quiet Caribbean vibe on a low-key beach all to yourself.',
+  MV: 'Step from your overwater villa straight into snorkeling.',
+  PF: 'Spend the day gazing at turquoise lagoon from your cottage.',
+  PH: 'Barefoot on white sand, hopping beach bars at sunset.',
+  SC: 'Rare scenery of giant rocks and white sand in peace.',
+  DO: 'All-inclusive beach days with swaying palms and clear waters.',
+  FJ: 'Friendly Bula spirit and blue Pacific waters.',
+  TZ: 'Stone Town and spice markets with white sand beaches.',
+  IT: 'Cliff-side towns and Mediterranean views on the Amalfi Coast.',
+  ES: 'Iconic beach clubs and sunset parties on the party island.',
 };
 
 interface BeachDetailProps {
@@ -192,15 +213,15 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
   const removeBeachPhoto = useStore((s) => s.removeBeachPhoto);
   const setBeachRating = useStore((s) => s.setBeachRating);
 
-  // 食べ物・飲み物は「個別データ > 国ごとのデフォルト」の順で採用する
+  // Food & drinks: prefer En versions (English-only app)
   const defaultFood = DEFAULT_FOOD_BY_COUNTRY[beach.countryCode] ?? [];
   const defaultDrinks = DEFAULT_DRINKS_BY_COUNTRY[beach.countryCode] ?? [];
-  const foodList = beach.food && beach.food.length > 0 ? beach.food : defaultFood;
-  const drinksList = beach.drinks && beach.drinks.length > 0 ? beach.drinks : defaultDrinks;
+  const foodList = (beach.foodEn?.length ? beach.foodEn : beach.food?.length ? beach.food : defaultFood);
+  const drinksList = (beach.drinksEn?.length ? beach.drinksEn : beach.drinks?.length ? beach.drinks : defaultDrinks);
   const hasFood = foodList.length > 0;
   const hasDrinks = drinksList.length > 0;
   const defaultUniqueExperience = DEFAULT_UNIQUE_EXPERIENCE_BY_COUNTRY[beach.countryCode];
-  const uniqueExperience = beach.uniqueExperience || defaultUniqueExperience;
+  const uniqueExperience = beach.uniqueExperienceEn || beach.uniqueExperience || defaultUniqueExperience;
   const hasUniqueExperience = !!uniqueExperience;
 
   const storeMemoNote = useStore((s) => s.beachMemos.find((m) => m.id === beach.id)?.note ?? '');
@@ -231,7 +252,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
   }, [note, beach.id, setBeachMemo]);
 
   const handleOpenMaps = useCallback(() => {
-    const encodedName = encodeURIComponent(beach.name);
+    const encodedName = encodeURIComponent(getBeachDisplayName(beach));
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${beach.lat},${beach.lng}`;
     const appleMapsUrl = `http://maps.apple.com/?q=${encodedName}&ll=${beach.lat},${beach.lng}`;
     const url = Platform.OS === 'ios' ? appleMapsUrl : googleMapsUrl;
@@ -239,7 +260,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
   }, [beach]);
 
   const handleSearchWeb = useCallback(() => {
-    const query = encodeURIComponent(`${beach.name} ${beach.cityName} beach`);
+    const query = encodeURIComponent(`${getBeachDisplayName(beach)} ${beach.cityName} beach`);
     Linking.openURL(`https://www.google.com/search?q=${query}`);
   }, [beach]);
 
@@ -292,7 +313,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
 
       <View style={styles.nameRow}>
         <Text style={styles.emoji}>{visited ? '✅' : wantToGo ? '⭐' : '🏖️'}</Text>
-        <Text style={styles.name}>{beach.name}</Text>
+        <Text style={styles.name}>{getBeachDisplayName(beach)}</Text>
       </View>
 
       <View style={styles.tagRow}>
@@ -313,12 +334,11 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
         )}
       </View>
 
-      {(beach.cityName || beach.countryCode) && (
+      {(beach.cityName || beach.countryCode || beach.address) && (
         <View style={styles.infoRow}>
           <Ionicons name="location-outline" size={18} color={SUSHI_COLORS.textMuted} />
-          <Text style={styles.infoText}>
-            {[beach.cityName, beach.countryCode].filter(Boolean).join(' · ')}
-            {beach.region && ` · ${beach.region}`}
+          <Text style={styles.infoText} numberOfLines={2}>
+            {beach.address || [beach.cityName, beach.countryCode].filter(Boolean).join(' · ')}
           </Text>
         </View>
       )}
@@ -330,10 +350,10 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
         </View>
       )}
 
-      {beach.description && (
+      {(beach.description || beach.descriptionEn) && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('description')}</Text>
-          <Text style={styles.descriptionText}>{beach.description}</Text>
+          <Text style={styles.descriptionText}>{getBeachDisplayDescription(beach)}</Text>
         </View>
       )}
 
@@ -376,11 +396,11 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
         </View>
       ) : null}
 
-      {beach.features && beach.features.length > 0 && (
+      {getBeachDisplayFeatures(beach).length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('features')}</Text>
           <View style={styles.featuresRow}>
-            {beach.features.map((feature, index) => (
+            {getBeachDisplayFeatures(beach).map((feature, index) => (
               <View key={index} style={styles.featureChip}>
                 <Text style={styles.featureChipText}>{feature}</Text>
               </View>
@@ -389,11 +409,11 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
         </View>
       )}
 
-      {beach.bestSeason && (
+      {(beach.bestSeason || beach.bestSeasonEn) && (
         <View style={styles.infoRow}>
           <Ionicons name="calendar-outline" size={18} color={SUSHI_COLORS.textMuted} />
           <Text style={styles.infoText}>
-            {t('bestSeason')}: {beach.bestSeason}
+            {t('bestSeason')}: {getBeachDisplayBestSeason(beach)}
           </Text>
         </View>
       )}
@@ -439,10 +459,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
           onRemovePhoto={handleRemovePhoto}
           t={t}
         />
-      </View>
-
-      {/* 満足度（行ったときのみ・思い出の上） */}
-      {visited && (
+        {/* 星5つの評価（写真の下） */}
         <View style={styles.ratingSection}>
           <Text style={styles.sectionTitle}>{t('sectionRating')}</Text>
           <View style={styles.starRow}>
@@ -464,7 +481,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
             <Text style={styles.ratingLabel}>{rating} / 5</Text>
           )}
         </View>
-      )}
+      </View>
 
       {/* 思い出 */}
       <View style={styles.section}>
@@ -658,7 +675,10 @@ const styles = StyleSheet.create({
   },
   ratingSection: {
     width: '100%',
-    marginTop: SPACING.lg,
+    marginTop: SPACING.xl,
+    paddingTop: SPACING.lg,
+    borderTopWidth: 1,
+    borderTopColor: SUSHI_COLORS.border,
     alignItems: 'center',
   },
   starRow: {

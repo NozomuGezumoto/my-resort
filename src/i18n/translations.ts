@@ -113,7 +113,7 @@ export const en: Record<TranslationKeys, string> = {
   visitedDate: 'Visited Date',
   visitYear: 'Visit Year',
   memoriesByYear: 'Memories by Year',
-  year: '',
+  year: 'Year',
 };
 
 /** 全ロケールが TranslationKeys を満たすことを型で保証。新言語追加時はここに追加し、Record<TranslationKeys, string> を満たすこと */

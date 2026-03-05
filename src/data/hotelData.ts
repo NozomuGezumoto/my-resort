@@ -42,9 +42,8 @@ export const REGION_COUNTRIES: Record<RegionId, string[]> = {
 /**
  * 地域の表示名（locale 省略時は日本語）
  */
-export function getRegionDisplayName(regionId: RegionId, locale: AppLocale = 'ja'): string {
-  const names = locale === 'en' ? REGION_NAMES_EN : REGION_NAMES;
-  return names[regionId] ?? regionId;
+export function getRegionDisplayName(regionId: RegionId, _locale?: AppLocale): string {
+  return REGION_NAMES_EN[regionId] ?? regionId;
 }
 
 /**
@@ -204,9 +203,8 @@ export function getAdminRegionForHotel(hotel: HotelPin): string {
 /**
  * 国コードの表示名（locale 省略時は日本語）
  */
-export function getCountryDisplayName(code: string, locale: AppLocale = 'ja'): string {
-  const names = locale === 'en' ? COUNTRY_NAMES_EN : COUNTRY_NAMES;
-  return names[code] ?? code;
+export function getCountryDisplayName(code: string, _locale?: AppLocale): string {
+  return COUNTRY_NAMES_EN[code] ?? code;
 }
 
 /**

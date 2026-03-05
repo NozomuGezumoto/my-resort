@@ -98,13 +98,19 @@ export interface BeachPin {
   cityName: string;
   region?: string;      // 地域名（例: カリブ海、地中海など）
   description?: string; // ビーチの説明
+  descriptionEn?: string; // 英語説明
   features?: string[];  // 特徴（例: ['白砂', 'シュノーケリング', 'サーフィン']）
+  featuresEn?: string[]; // 英語の特徴
   bestSeason?: string;  // ベストシーズン（例: '12月〜3月'）
+  bestSeasonEn?: string; // 英語のベストシーズン
   address?: string;
   activities?: string[]; // アクティビティ（例: ['シュノーケリング', 'ダイビング', 'パラセーリング']）
-  food?: string[];      // 食べ物・レストラン（例: ['シーフード', '地元料理', 'ビーチカフェ']）
-  drinks?: string[];    // 飲み物（例: ['ココナッツウォーター', 'トロピカルカクテル', '地ビール']）
+  food?: string[];      // 食べ物・レストラン
+  foodEn?: string[];    // English
+  drinks?: string[];    // 飲み物
+  drinksEn?: string[];  // English
   uniqueExperience?: string; // ユニークな体験の説明
+  uniqueExperienceEn?: string; // English
   mood?: string[];      // 気分・雰囲気（例: ['リラックス', 'アクティブ', 'ロマンチック']）
 }
 

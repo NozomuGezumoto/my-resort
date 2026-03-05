@@ -22,6 +22,7 @@ import {
   getBeachesMeta,
   getAdminRegionForBeach,
   getCountryDisplayName,
+  getBeachDisplayName,
   REGION_IDS,
   REGION_COUNTRIES,
   getRegionDisplayName,
@@ -70,7 +71,7 @@ const BeachListItem = memo(function BeachListItem({
       </View>
       <View style={styles.listItemInfo}>
         <View style={styles.listItemNameRow}>
-          <Text style={styles.listItemName} numberOfLines={1}>{beach.name}</Text>
+          <Text style={styles.listItemName} numberOfLines={1}>{getBeachDisplayName(beach)}</Text>
           {isVisited && (
             <View style={styles.listItemBadgeVisited}>
               <Text style={styles.listItemBadgeText}>

@@ -39,18 +39,17 @@ export const REGION_COUNTRIES: Record<RegionId, string[]> = {
   asia: ['JP', 'TH', 'SG', 'HK', 'AE', 'ID', 'IN', 'MV', 'PH'],
   europe: ['FR', 'GB', 'IT', 'ES', 'AT', 'DE', 'NL', 'CH', 'GR', 'PT'],
   americas: ['US', 'MX', 'BR', 'VE'],
-  oceania: ['AU', 'PF'],
-  africa: ['ZA', 'SC'],
-  caribbean: ['PR', 'AW', 'BB'],
+  oceania: ['AU', 'PF', 'FJ'],
+  africa: ['ZA', 'SC', 'TZ'],
+  caribbean: ['PR', 'AW', 'BB', 'DO'],
   hawaii: ['US'], // ハワイはUSだが、地域として分ける
 };
 
 /**
- * 地域の表示名（locale 省略時は日本語）
+ * 地域の表示名（現在は英語のみ）
  */
-export function getRegionDisplayName(regionId: RegionId, locale: AppLocale = 'ja'): string {
-  const names = locale === 'en' ? REGION_NAMES_EN : REGION_NAMES;
-  return names[regionId] ?? regionId;
+export function getRegionDisplayName(regionId: RegionId, _locale?: AppLocale): string {
+  return REGION_NAMES_EN[regionId] ?? regionId;
 }
 
 /**
@@ -95,6 +94,9 @@ export const COUNTRY_NAMES: Record<string, string> = {
   PF: 'フランス領ポリネシア',
   PH: 'フィリピン',
   SC: 'セーシェル',
+  DO: 'ドミニカ共和国',
+  FJ: 'フィジー',
+  TZ: 'タンザニア',
 };
 
 export const COUNTRY_NAMES_EN: Record<string, string> = {
@@ -128,6 +130,9 @@ export const COUNTRY_NAMES_EN: Record<string, string> = {
   PF: 'French Polynesia',
   PH: 'Philippines',
   SC: 'Seychelles',
+  DO: 'Dominican Republic',
+  FJ: 'Fiji',
+  TZ: 'Tanzania',
 };
 
 /** 日本の cityName → 都道府県 */
@@ -161,11 +166,21 @@ const ADMIN_REGION_BY_COUNTRY_CITY: Record<string, string> = {
   'FR:ニース': 'プロヴァンス=アルプ=コート・ダジュール',
   // GR
   'GR:サントリーニ': 'サントリーニ',
+  'GR:ミコノス': 'ミコノス',
   // PT
   'PT:カスカイス': 'リスボン',
+  'ES:イビサ': 'バレアレス諸島',
+  'IT:アマルフィ': 'カンパニア',
+  'IN:ゴア': 'ゴア',
+  'TZ:ザンジバル': 'ザンジバル',
+  'FJ:ナディ': 'ビティレブ',
+  'DO:プンタカナ': 'ラ・アルタグラシア',
   // MX
   'MX:プラヤ・デル・カルメン': 'キンタナ・ロー',
   'MX:トゥルム': 'キンタナ・ロー',
+  'MX:カンクン': 'キンタナ・ロー',
+  'US:マイアミ': 'フロリダ',
+  'US:マウイ': 'ハワイ州',
   // BR
   'BR:リオデジャネイロ': 'リオデジャネイロ',
   // ZA
@@ -200,11 +215,79 @@ export function getAdminRegionForBeach(beach: BeachPin): string {
 }
 
 /**
- * 国コードの表示名（locale 省略時は日本語）
+ * 国コードの表示名（現在は英語のみ）
  */
-export function getCountryDisplayName(code: string, locale: AppLocale = 'ja'): string {
-  const names = locale === 'en' ? COUNTRY_NAMES_EN : COUNTRY_NAMES;
-  return names[code] ?? code;
+export function getCountryDisplayName(code: string, _locale?: AppLocale): string {
+  return COUNTRY_NAMES_EN[code] ?? code;
+}
+
+/** 特徴タグの日本語→英語マップ（英語表示用） */
+const FEATURE_EN: Record<string, string> = {
+  白砂: 'White sand',
+  '透明度の高い海': 'Crystal clear waters',
+  シュノーケリング: 'Snorkeling',
+  リラックス: 'Relax',
+  ダイビング: 'Diving',
+  文化: 'Culture',
+  サーフィン: 'Surfing',
+  ナイトライフ: 'Nightlife',
+  リゾート: 'Resort',
+  朝日: 'Sunrise',
+  散歩: 'Walking',
+  ピンクサンド: 'Pink sand',
+  ウミガメ: 'Sea turtles',
+  水上コテージ: 'Overwater bungalows',
+  緑の砂: 'Green sand',
+  ユニーク: 'Unique',
+  ハイキング: 'Hiking',
+  黒い砂: 'Black sand',
+  赤い砂: 'Red sand',
+  アクティビティ: 'Activities',
+  ショッピング: 'Shopping',
+  家族向け: 'Family-friendly',
+  ラグーン: 'Lagoon',
+  'オーバーウォーターコテージ': 'Overwater bungalows',
+  自然: 'Nature',
+  アクティブ: 'Active',
+  ロマンチック: 'Romantic',
+  カルチャー: 'Culture',
+  アート: 'Art',
+  ヨガ: 'Yoga',
+  ゴルフ: 'Golf',
+  'オールインクルーシブ': 'All-inclusive',
+};
+
+/** ベストシーズン簡易翻訳（日本語→英語） */
+const BEST_SEASON_EN: Record<string, string> = {
+  '通年': 'Year-round',
+  '12月〜4月': 'Dec-Apr',
+  '12月〜3月': 'Dec-Mar',
+  '11月〜4月': 'Nov-Apr',
+  '4月〜10月': 'Apr-Oct',
+  '6月〜9月': 'Jun-Sep',
+  '5月〜9月': 'May-Sep',
+  '5月〜10月': 'May-Oct',
+  '11月〜2月': 'Nov-Feb',
+  '12月〜2月': 'Dec-Feb',
+};
+
+export function getBeachDisplayName(beach: BeachPin): string {
+  return beach.nameEn || beach.name;
+}
+
+export function getBeachDisplayDescription(beach: BeachPin): string {
+  return beach.descriptionEn || beach.description || '';
+}
+
+export function getBeachDisplayFeatures(beach: BeachPin): string[] {
+  if (beach.featuresEn?.length) return beach.featuresEn;
+  return (beach.features || []).map((f) => FEATURE_EN[f] || f);
+}
+
+export function getBeachDisplayBestSeason(beach: BeachPin): string {
+  if (beach.bestSeasonEn) return beach.bestSeasonEn;
+  const ja = beach.bestSeason || '';
+  return BEST_SEASON_EN[ja] || ja;
 }
 
 /**
