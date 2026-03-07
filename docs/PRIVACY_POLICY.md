@@ -97,7 +97,7 @@ We may update this Privacy Policy from time to time. We will notify you of any m
 
 If you have questions about this Privacy Policy, please contact us at:
 
-**Email**: [Please set your contact email]
+**Email**: nozomusp29@gmail.com
 
 ---
 
