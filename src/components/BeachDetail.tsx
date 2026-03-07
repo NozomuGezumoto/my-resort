@@ -27,6 +27,8 @@ import {
   getBeachDisplayDescription,
   getBeachDisplayFeatures,
   getBeachDisplayBestSeason,
+  getBeachDisplayLocation,
+  getBeachDisplayCityName,
 } from '../data/beachData';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -260,7 +262,8 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
   }, [beach]);
 
   const handleSearchWeb = useCallback(() => {
-    const query = encodeURIComponent(`${getBeachDisplayName(beach)} ${beach.cityName} beach`);
+    const city = getBeachDisplayCityName(beach) || getBeachDisplayName(beach);
+    const query = encodeURIComponent(`${getBeachDisplayName(beach)} ${city} beach`);
     Linking.openURL(`https://www.google.com/search?q=${query}`);
   }, [beach]);
 
@@ -338,7 +341,7 @@ export default function BeachDetail({ beach, onClose }: BeachDetailProps) {
         <View style={styles.infoRow}>
           <Ionicons name="location-outline" size={18} color={SUSHI_COLORS.textMuted} />
           <Text style={styles.infoText} numberOfLines={2}>
-            {beach.address || [beach.cityName, beach.countryCode].filter(Boolean).join(' · ')}
+            {beach.address || getBeachDisplayLocation(beach)}
           </Text>
         </View>
       )}

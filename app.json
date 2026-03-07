@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "My Resort Map",
-    "slug": "my-sushi",
+    "slug": "my-resort-map",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mysushi",
+    "scheme": "myresortmap",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,21 +15,28 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mysushi.app",
-      "buildNumber": "1"
+      "bundleIdentifier": "com.myresortmap.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#0d9488"
       },
-      "package": "com.mysushi.app",
+      "package": "com.myresortmap.app",
       "versionCode": 1,
       "config": {
         "googleMaps": {
           "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -48,6 +55,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "376a9f71-b4b1-4cb5-9466-5a3d15820595"
+      }
     }
   }
 }

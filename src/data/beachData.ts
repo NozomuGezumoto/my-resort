@@ -17,7 +17,7 @@ export type RegionId = (typeof REGION_IDS)[number];
 export const REGION_NAMES: Record<RegionId, string> = {
   asia: 'アジア',
   europe: 'ヨーロッパ',
-  americas: '北米・中南米',
+  americas: '北米\u30fb中南米',
   oceania: 'オセアニア',
   africa: 'アフリカ',
   caribbean: 'カリブ海',
@@ -163,7 +163,7 @@ const ADMIN_REGION_BY_COUNTRY_CITY: Record<string, string> = {
   'AU:シドニー': 'ニューサウスウェールズ',
   'AU:ウィッツンデー諸島': 'クイーンズランド',
   // FR
-  'FR:ニース': 'プロヴァンス=アルプ=コート・ダジュール',
+  'FR:ニース': 'プロヴァンス=アルプ=コート\u30fbダジュール',
   // GR
   'GR:サントリーニ': 'サントリーニ',
   'GR:ミコノス': 'ミコノス',
@@ -174,9 +174,9 @@ const ADMIN_REGION_BY_COUNTRY_CITY: Record<string, string> = {
   'IN:ゴア': 'ゴア',
   'TZ:ザンジバル': 'ザンジバル',
   'FJ:ナディ': 'ビティレブ',
-  'DO:プンタカナ': 'ラ・アルタグラシア',
+  'DO:プンタカナ': 'ラ\u30fbアルタグラシア',
   // MX
-  'MX:プラヤ・デル・カルメン': 'キンタナ・ロー',
+  'MX:プラヤ\u30fbデル\u30fbカルメン': 'キンタナ\u30fbロー',
   'MX:トゥルム': 'キンタナ・ロー',
   'MX:カンクン': 'キンタナ・ロー',
   'US:マイアミ': 'フロリダ',
@@ -194,7 +194,7 @@ const ADMIN_REGION_BY_COUNTRY_CITY: Record<string, string> = {
   // BB
   'BB:セントフィリップ': 'セントフィリップ',
   // VE
-  'VE:マルガリータ島': 'ヌエバ・エスパルタ',
+  'VE:マルガリータ島': 'ヌエバ\u30fbエスパルタ',
   // MV
   'MV:マレ': 'モルディブ',
   // PF
@@ -273,6 +273,40 @@ const BEST_SEASON_EN: Record<string, string> = {
 
 export function getBeachDisplayName(beach: BeachPin): string {
   return beach.nameEn || beach.name;
+}
+
+/** cityName (JA) -> English */
+const CITY_NAME_EN: Record<string, string> = {
+  ハワイ: 'Hawaii', ホノルル: 'Honolulu', マウイ: 'Maui', クレブラ島: 'Culebra Island',
+  オラニエスタッド: 'Oranjestad', セントフィリップ: 'St. Philip', バリ: 'Bali',
+  シンガポール: 'Singapore', プーケット: 'Phuket', ピピ島: 'Phi Phi Island',
+  沖縄: 'Okinawa', 石垣島: 'Ishigaki Island', シドニー: 'Sydney',
+  ウィッツンデー諸島: 'Whitsunday Islands', ニース: 'Nice', サントリーニ: 'Santorini',
+  ミコノス: 'Mykonos', カスカイス: 'Cascais', イビサ: 'Ibiza',
+  'プラヤ\u30fbデル\u30fbカルメン': 'Playa del Carmen', トゥルム: 'Tulum', カンクン: 'Cancún',
+  リオデジャネイロ: 'Rio de Janeiro', ケープタウン: 'Cape Town', ドバイ: 'Dubai',
+  マルガリータ島: 'Margarita Island', マレ: 'Malé', ボラボラ: 'Bora Bora',
+  ボラカイ: 'Boracay', マヘ島: 'Mahé', プンタカナ: 'Punta Cana', ナディ: 'Nadi',
+  マイアミ: 'Miami', ゴア: 'Goa', ザンジバル: 'Zanzibar', アマルフィ: 'Amalfi',
+};
+
+/** region (JA) -> English */
+const REGION_JA_TO_EN: Record<string, string> = {
+  アジア: 'Asia', ヨーロッパ: 'Europe', '北米\u30fb中南米': 'Americas',
+  オセアニア: 'Oceania', アフリカ: 'Africa', カリブ海: 'Caribbean', ハワイ諸島: 'Hawaii',
+};
+
+export function getBeachDisplayLocation(beach: BeachPin): string {
+  const city = beach.cityName ? (CITY_NAME_EN[beach.cityName] ?? beach.cityName) : '';
+  const region = beach.region ? (REGION_JA_TO_EN[beach.region] ?? beach.region) : '';
+  if (city && region) return `${city} · ${region}`;
+  if (city) return city;
+  if (region) return region;
+  return beach.countryCode ? getCountryDisplayName(beach.countryCode) : '';
+}
+
+export function getBeachDisplayCityName(beach: BeachPin): string {
+  return beach.cityName ? (CITY_NAME_EN[beach.cityName] ?? beach.cityName) : '';
 }
 
 export function getBeachDisplayDescription(beach: BeachPin): string {

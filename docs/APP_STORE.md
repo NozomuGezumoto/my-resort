@@ -9,8 +9,8 @@ Information for submitting My Resort Map to the App Store and Google Play.
 | Item | Value |
 |------|-------|
 | **App Name** | My Resort Map |
-| **Bundle ID (iOS)** | com.mysushi.app |
-| **Package (Android)** | com.mysushi.app |
+| **Bundle ID (iOS)** | com.myresortmap.app |
+| **Package (Android)** | com.myresortmap.app |
 | **Category** | Travel |
 | **Age Rating** | 4+ |
 | **Languages** | English |

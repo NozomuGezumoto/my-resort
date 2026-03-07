@@ -23,6 +23,7 @@ import {
   getAdminRegionForBeach,
   getCountryDisplayName,
   getBeachDisplayName,
+  getBeachDisplayLocation,
   REGION_IDS,
   REGION_COUNTRIES,
   getRegionDisplayName,
@@ -87,7 +88,7 @@ const BeachListItem = memo(function BeachListItem({
         </View>
         <View style={styles.listItemMetaRow}>
           <Text style={styles.listItemMeta} numberOfLines={1}>
-            {beach.cityName || beach.countryCode || ''} {beach.region && `· ${beach.region}`}
+            {getBeachDisplayLocation(beach)}
           </Text>
           {rating !== undefined && (
             <View style={styles.listItemRating}>
